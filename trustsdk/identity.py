@@ -27,10 +27,7 @@ class Keypair:
 
 if __name__ == "__main__":
     kp = Keypair()
-    print(type(kp.private_key))
-    print(type(kp.public_key))
+    print("agent ID:", kp.public_key_hex())
     sig = kp.sign("hello")
-    print(sig)
-
     print("real:", Keypair.verify(kp.public_key_hex(), "hello", sig))
     print("fake:", Keypair.verify(kp.public_key_hex(), "hacked", sig))
