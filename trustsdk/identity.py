@@ -15,12 +15,14 @@ class Keypair:
 
     @staticmethod
     def verify(public_key_hex : str, message : str, signature_hex :str) -> bool:
-        raw = bytes.fromhex(public_key_hex)
-        key_obj = ed25519.Ed25519PublicKey.from_public_bytes(raw)
+        if signature_hex is None:
+            return False
         try:
+            raw = bytes.fromhex(public_key_hex)
+            key_obj = ed25519.Ed25519PublicKey.from_public_bytes(raw)
             key_obj.verify(bytes.fromhex(signature_hex), message.encode())
             return True
-        except InvalidSignature:
+        except (InvalidSignature, ValueError, TypeError):
             return False
 
 

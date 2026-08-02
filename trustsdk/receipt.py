@@ -3,12 +3,14 @@ from identity import Keypair
 
 
 class Receipt:
-    def __init__(self, task_id, task_type, deadline, delivered_at, accepted):
+    def __init__(self, task_id, task_type, deadline, delivered_at, accepted, specialist_sig = None , hiring_sig = None):
         self.task_id = task_id
         self.task_type = task_type
         self.deadline = deadline
         self.delivered_at = delivered_at
         self.accepted = accepted
+        self.specialist_sig = specialist_sig
+        self.hiring_sig = hiring_sig
 
     def to_text(self) -> str:
         data = {
@@ -20,14 +22,37 @@ class Receipt:
             }
         return json.dumps(data, sort_keys=True)
 
-    def sign_by(self, keypair) -> str:
-        return keypair.sign(self.to_text())
+    def sign_by(self, keypair, role) -> str:
+        sig = keypair.sign(self.to_text())
+        if role == "specialist":
+            self.specialist_sig = sig
+        else:
+            self.hiring_sig = sig
+        return sig
+
+
+    def verify_signatures(self,specialist_pubkey,hiring_pubkey) -> bool:
+        return Keypair.verify( specialist_pubkey , self.to_text() , self.specialist_sig ) and Keypair.verify( hiring_pubkey , self.to_text() , self.hiring_sig )
+        
+        
+        
+
+
+        
+        
     
 
 
 if __name__ == "__main__":
-    kp = Keypair()
+    specialist = Keypair()
+    hiring = Keypair()
+
     r = Receipt("47", "summarize", 100.0, 95.0, True)
-    sig = r.sign_by(kp)
-    print("signature:", sig)
-    print("valid:", Keypair.verify(kp.public_key_hex(), r.to_text(), sig))
+    r.sign_by(specialist, "specialist")
+    r.sign_by(hiring, "hiring")
+
+    print("both valid:", r.verify_signatures(specialist.public_key_hex(), hiring.public_key_hex()))
+
+    fake = Receipt("99", "summarize", 100.0, 95.0, True)
+    fake.sign_by(specialist, "specialist")   # only specialist signs, no hiring countersign
+    print("faker valid:", fake.verify_signatures(specialist.public_key_hex(), hiring.public_key_hex()))
