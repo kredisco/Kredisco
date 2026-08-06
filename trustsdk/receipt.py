@@ -35,14 +35,8 @@ class Receipt:
         return Keypair.verify( specialist_pubkey , self.to_text() , self.specialist_sig ) and Keypair.verify( hiring_pubkey , self.to_text() , self.hiring_sig )
         
         
-        
-
 
         
-        
-    
-
-
 if __name__ == "__main__":
     specialist = Keypair()
     hiring = Keypair()
