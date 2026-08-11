@@ -3,3 +3,4 @@ __pycache__/
 *.key
 venv/
 *.db
+make_test_settle.py 

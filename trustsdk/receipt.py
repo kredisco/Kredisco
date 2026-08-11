@@ -1,5 +1,5 @@
 import json
-from identity import Keypair
+from trustsdk.identity import Keypair
 
 
 class Receipt:
