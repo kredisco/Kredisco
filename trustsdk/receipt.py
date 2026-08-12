@@ -3,10 +3,11 @@ from trustsdk.identity import Keypair
 
 
 class Receipt:
-    def __init__(self, task_id, task_type, deadline, delivered_at, accepted, specialist_sig = None , hiring_sig = None):
+    def __init__(self, task_id, task_type, deadline, started_at, delivered_at, accepted, specialist_sig = None , hiring_sig = None):
         self.task_id = task_id
         self.task_type = task_type
         self.deadline = deadline
+        self.started_at = started_at
         self.delivered_at = delivered_at
         self.accepted = accepted
         self.specialist_sig = specialist_sig
@@ -17,6 +18,7 @@ class Receipt:
             "task_id" : self.task_id,
             "task_type" : self.task_type,
             "deadline" : self.deadline,
+            "started_at": self.started_at,
             "delivered_at" : self.delivered_at,
             "accepted" : self.accepted
             }
@@ -41,12 +43,12 @@ if __name__ == "__main__":
     specialist = Keypair()
     hiring = Keypair()
 
-    r = Receipt("47", "summarize", 100.0, 95.0, True)
+    r = Receipt("47", "summarize", 100.0, 90.0, 95.0, True)
     r.sign_by(specialist, "specialist")
     r.sign_by(hiring, "hiring")
 
     print("both valid:", r.verify_signatures(specialist.public_key_hex(), hiring.public_key_hex()))
 
-    fake = Receipt("99", "summarize", 100.0, 95.0, True)
+    fake = Receipt("99", "summarize", 100.0, 90.0, 95.0, True)
     fake.sign_by(specialist, "specialist")   # only specialist signs, no hiring countersign
     print("faker valid:", fake.verify_signatures(specialist.public_key_hex(), hiring.public_key_hex()))
