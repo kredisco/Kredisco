@@ -1,9 +1,11 @@
 import json
-from trustsdk.identity import Keypair
-
-
+try:
+    from trustsdk.identity import Keypair    
+except ModuleNotFoundError:
+    from identity import Keypair 
+                 
 class Receipt:
-    def __init__(self, task_id, task_type, deadline, started_at, delivered_at, accepted, specialist_sig = None , hiring_sig = None):
+    def __init__(self, task_id, task_type, deadline, started_at, delivered_at, accepted, specialist_sig = None , hiring_sig = None, parent_task_id = None):
         self.task_id = task_id
         self.task_type = task_type
         self.deadline = deadline
@@ -12,6 +14,7 @@ class Receipt:
         self.accepted = accepted
         self.specialist_sig = specialist_sig
         self.hiring_sig = hiring_sig
+        self.parent_task_id = parent_task_id
 
     def to_text(self) -> str:
         data = {
