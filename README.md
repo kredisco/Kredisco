@@ -233,6 +233,13 @@ every score resets to 300. Back it up, and add it to `.gitignore`.
 cannot shorten its own recorded duration.
 
 ---
+## A working example
+
+[`examples/langgraph_support_triage.py`](examples/langgraph_support_triage.py)
+is a four-agent LangGraph pipeline using two different Claude models,
+with a validator on every step. Run it a few times and watch the scores
+separate — and watch an agent recover after its prompt is fixed.
+
 
 ## What this does not solve
 

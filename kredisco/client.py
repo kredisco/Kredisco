@@ -19,6 +19,7 @@ DEFAULT_SERVER = "https://api.kredisco.com"
 DEFAULT_TIMEOUT = 10.0
 DEFAULT_BUDGET = 30.0
 DEFAULT_KEY_DIR = ".kredisco"
+_RAISE = object()
 
 logger = logging.getLogger("kredisco")
 
@@ -163,7 +164,7 @@ class Kredisco:
         return task_id
 
     def track(self, agent, task_type, fn, *args,
-              validate=None, budget=None, retries=0, **kwargs):
+              validate=None, budget=None, retries=0, default=_RAISE, **kwargs):
         parent_task_id = None
         attempts = retries + 1
         last_error = None
@@ -194,10 +195,14 @@ class Kredisco:
             if attempt < attempts - 1:
                 logger.info("kredisco: retrying %s on %s", task_type, agent.name)
 
+        if default is not _RAISE:
+            logger.info("kredisco: %s on %s failed, returning default",
+                        task_type, agent.name)
+            return default
+
         if last_error is not None:
             raise last_error
         return result
-
     @contextmanager
     def task(self, agent, task_type, budget=None, parent_task_id=None):
         started_at = time.time()
