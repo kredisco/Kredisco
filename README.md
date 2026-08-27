@@ -175,6 +175,38 @@ data = kd.track(
 If your orchestrator already retries on its own, leave this off and use
 the context manager below for each attempt.
 
+## When everything fails
+
+If every attempt fails, `track` re-raises the last exception. Sometimes
+that is what you want. Often it is not — a graph node that stops the
+whole run because one step returned bad JSON is worse than a node that
+carries on with an empty value.
+
+Pass `default` and `track` returns it instead of raising:
+
+```python
+data = kd.track(
+    extractor, "extract", extract_invoice, pdf,
+    validate=lambda d: d is not None and "total" in d,
+    retries=1,
+    default={},
+)
+```
+
+The failure is still recorded and the score still drops. Only your
+control flow changes.
+
+Without `default`, every call site needs its own `try`/`except`. With
+it, a pipeline step is one expression:
+
+```python
+def extract_node(state):
+    return {"fields": kd.track(
+        extractor, "extract", extract_invoice, state["pdf"],
+        validate=fields_ok, retries=1, default={},
+    )}
+```
+
 ## When you cannot hand over a function
 
 Some code will not collapse into a single call — the body of a graph
@@ -233,13 +265,24 @@ every score resets to 300. Back it up, and add it to `.gitignore`.
 cannot shorten its own recorded duration.
 
 ---
+
+---
+
 ## A working example
 
 [`examples/langgraph_support_triage.py`](examples/langgraph_support_triage.py)
-is a four-agent LangGraph pipeline using two different Claude models,
-with a validator on every step. Run it a few times and watch the scores
-separate — and watch an agent recover after its prompt is fixed.
+is a four-agent LangGraph pipeline built on two different Claude models,
+with a validator on every step.
 
+Run it a few times. The scores separate for real reasons — one agent
+returns JSON wrapped in code fences, another hits a response shape the
+caller did not expect, a third is simply slower. Fix the prompt that is
+failing and watch that agent climb over subsequent runs, without ever
+catching the agent that never failed.
+
+That gap is the point. History has weight, and recovery takes work.
+
+---
 
 ## What this does not solve
 
