@@ -1,6 +1,6 @@
 import json
 try:
-    from trustsdk.identity import Keypair    
+    from kredisco.identity import Keypair    
 except ModuleNotFoundError:
     from identity import Keypair 
                  
