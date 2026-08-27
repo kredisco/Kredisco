@@ -5,3 +5,4 @@ venv/
 *.db
 make_test_settle.py 
 sim/keys/
+.env
