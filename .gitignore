@@ -6,3 +6,6 @@ venv/
 make_test_settle.py 
 sim/keys/
 .env
+dist/
+build/
+*.egg-info/
