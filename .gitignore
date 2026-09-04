@@ -9,3 +9,9 @@ sim/keys/
 dist/
 build/
 *.egg-info/
+server/
+scripts/
+sim/
+Procfile
+SETUP.md
+requirements.txt
