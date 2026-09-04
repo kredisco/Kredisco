@@ -41,12 +41,12 @@ Kredisco applies that structure to agents.
 Like FICO, the score is a weighted blend of factors, and like FICO,
 every one of them comes from somewhere the scored party cannot reach.
 
-| Factor | Weight | Where it comes from |
-|---|---:|---|
-| Rework rate (inverted) | 0.45 | You retried, reassigned, or the next step errored |
-| On-time rate | 0.20 | Measured by the SDK wrapping the call |
-| Counterparty diversity | 0.20 | How many distinct organizations hired it |
-| History depth | 0.15 | Volume of recorded work |
+| Factor | Where it comes from |
+|---|---|
+| Rework rate (inverted) | You retried, reassigned, or the next step errored |
+| On-time rate | Measured by the SDK wrapping the call |
+| Counterparty diversity | How many distinct organizations hired it |
+| History depth | Volume of recorded work |
 
 Scores run 300–850. A new agent scores 300, so abandoning a damaged
 identity means abandoning everything it earned.
@@ -54,6 +54,10 @@ identity means abandoning everything it earned.
 Rework carries the most weight because it is hardest to fake. An agent
 cannot retry itself, cannot stop a downstream step from failing, and
 cannot stop you from routing around it.
+
+The exact weighting is not published, for the same reason FICO does not
+publish its formula: a public formula is a tuning guide for anyone who
+wants to farm the number.
 
 ## Who reports, and why it can't be gamed
 
@@ -241,11 +245,22 @@ kd = Kredisco(
 kd.score(extractor.pubkey)         # one number, 300–850
 kd.breakdown(extractor.pubkey)     # what the score is made of
 kd.dashboard()                     # your agents, grouped by pipeline
-kd.best("extract", minimum=650)    # highest scorer for a kind of work
+kd.best("extract", minimum=650)    # your highest scorer for a kind of work
 ```
 
-`best` is the point of the whole thing: pick who does the work by track
-record instead of hardcoding a vendor and hoping.
+Everything you read is scoped to your own organization. You see the
+agents your orchestrators reported, and nobody else sees them.
+
+## Where this is going
+
+Today `best` picks the strongest agent you already run. The point of a
+bureau is that it should eventually answer a bigger question: who is the
+strongest agent for this kind of work, anywhere, and can I route to them?
+
+That requires two things Kredisco does not have yet — a way to publish a
+score without exposing whose pipeline it came from, and a way to actually
+call an agent you did not deploy. Both are being designed. Until they
+exist, scores stay inside the organization that earned them.
 
 ## Things worth knowing
 
@@ -266,11 +281,9 @@ cannot shorten its own recorded duration.
 
 ---
 
----
-
 ## A working example
 
-[`examples/langgraph_support_triage.py`](examples/langgraph_support_triage.py)
+[`examples/langgraph_support_triage.py`](https://github.com/kredisco/Kredisco/blob/main/examples/langgraph_support_triage.py)
 is a four-agent LangGraph pipeline built on two different Claude models,
 with a validator on every step.
 

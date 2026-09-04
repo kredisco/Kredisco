@@ -229,10 +229,11 @@ class Kredisco:
     def dashboard(self):
         return self._get("/dashboard")["workflows"]
 
-    def leaderboard(self):
-        return self._get("/leaderboard")["leaderboard"]
-
     def best(self, specialty, minimum=0):
-        rows = [r for r in self.leaderboard()
-                if r.get("specialty") == specialty and r["score"] >= minimum]
+        rows = []
+        for workflow in self.dashboard():
+            for agent in workflow["agents"]:
+                if agent.get("specialty") == specialty and agent["score"] >= minimum:
+                    rows.append(agent)
+        rows.sort(key=lambda r: r["score"], reverse=True)
         return rows[0] if rows else None
